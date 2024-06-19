@@ -19,6 +19,8 @@ pub async fn main_controller() {
     let es_id = env::var("ES_ID").expect("'ES_ID' must be set");
     let es_pw = env::var("ES_PW").expect("'ES_PW' must be set");
 
+    let op_ver = env::var("OP_VERSION").expect("'OP_VERSION' must be set");
+
 
     // Elasticsearch connection
     let es_client: EsHelper = match EsHelper::new(es_host, &es_id, &es_pw) {
@@ -30,15 +32,24 @@ pub async fn main_controller() {
     }; 
     
 
-    loop {
-        
+    if op_ver == "test" {
+
         match clear_service(&es_client).await {
             Ok(_) => (),
             Err(e) => { error!("{:?}", e) }
         }
 
-        thread::sleep(Duration::from_secs(60));
-    }
+    } else {
 
+        loop {
+        
+            match clear_service(&es_client).await {
+                Ok(_) => (),
+                Err(e) => { error!("{:?}", e) }
+            }
+    
+            thread::sleep(Duration::from_secs(300));
+        }
+    }
     
 }

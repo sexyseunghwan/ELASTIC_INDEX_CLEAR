@@ -12,6 +12,9 @@ async fn check_disk_usage(es_helper: &EsHelper) -> Result<bool, anyhow::Error> {
     let metric_info_list = es_helper.cluster_stats_fs().await?;
     let mut del_flag = false;
 
+    let mut cluster_total_in_byte: f64 = 0.0;
+    let mut cluster_use_in_byte: f64 = 0.0;
+    
     for metric_info in metric_info_list {
 
         let total_in_bytes = *metric_info.total_in_bytes() as f64;
@@ -21,13 +24,20 @@ async fn check_disk_usage(es_helper: &EsHelper) -> Result<bool, anyhow::Error> {
         let use_in_byte_per = (use_in_byte / total_in_bytes) * 100.0;
         
         info!("{} : {}", metric_info.node_host(), use_in_byte_per);
+        
+        cluster_total_in_byte += total_in_bytes;
+        cluster_use_in_byte += use_in_byte;
 
-        if use_in_byte_per > 50.0 { 
-            del_flag = true; 
-            break;
-        }
     }  
 
+    let cluster_use_in_byte_per = (cluster_use_in_byte / cluster_total_in_byte) * 100.0;
+
+    info!("cluster : {} %", cluster_use_in_byte_per);
+
+    if cluster_use_in_byte_per > 50.0 { 
+        del_flag = true;
+    }
+    
     Ok(del_flag)
 }
 
@@ -38,7 +48,7 @@ async fn check_disk_usage(es_helper: &EsHelper) -> Result<bool, anyhow::Error> {
 pub async fn clear_service(es_helper: &EsHelper) -> Result<(), anyhow::Error> {
     
     let mut loop_flag = check_disk_usage(es_helper).await?;
-    
+
     while loop_flag {
         
         let mut index_infos_queue = es_helper.cluster_cat_query("store.size:desc", 5).await?;
@@ -57,6 +67,6 @@ pub async fn clear_service(es_helper: &EsHelper) -> Result<(), anyhow::Error> {
             }
         }
     }  
-
+    
    Ok(()) 
 }

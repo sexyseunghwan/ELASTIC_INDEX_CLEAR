@@ -12,6 +12,7 @@ History     : 2023-06-21 Seunghwan Shin       # first create
               2023-07-26 Seunghwan Shin       # An issue occurred where log files were not created by date.
                                                 Changed so that log files can be created by date
               2024-06-18 Seunghwan Shin       # Converting Python Code to RUST Code
+              2024-06-19 Seunghwan Shin       # 
 */ 
 mod common;
 mod controller;
