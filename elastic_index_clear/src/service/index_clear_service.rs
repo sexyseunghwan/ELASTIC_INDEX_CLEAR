@@ -22,7 +22,7 @@ async fn check_disk_usage(es_helper: &EsHelper) -> Result<bool, anyhow::Error> {
         
         info!("{} : {}", metric_info.node_host(), use_in_byte_per);
 
-        if use_in_byte_per > 70.0 { 
+        if use_in_byte_per > 50.0 { 
             del_flag = true; 
             break;
         }
