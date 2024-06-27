@@ -1,3 +1,2 @@
 *.env
 *.log
-/elastic_index_clear/target
